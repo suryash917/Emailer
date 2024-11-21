@@ -3,22 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Email Generator with Footer</title>
-  
+  <title>Email Generator</title>
   <style>
     body {
-      font-family: 'Avenir', Arial, Helvetica, sans-serif; /* Set font to Avenir */
-      background-color: #f9fafa;
+      font-family: 'Avenir', Arial, Helvetica, sans-serif; /* Avenir font */
+      background-color: #f9f9f9; /* Light grey background */
       margin: 0;
       padding: 0;
-      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
     .container {
       width: 100%;
       max-width: 600px;
-      margin: 0 auto;
+      margin: 20px auto;
     }
-    .form-container, .preview-container {
+    .form-container {
       padding: 20px;
       background: #ffffff;
       border-radius: 12px;
@@ -57,25 +59,6 @@
     button:hover {
       background-color: #1a298e;
     }
-    .preview-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .preview-container h2 {
-      font-size: 1.5rem;
-      color: #1861f5;
-    }
-    .copy-btn {
-      background-color: #ffc800;
-      color: #000;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 10px;
-    }
     .footer {
       font-size: 0.9rem;
       color: #777;
@@ -90,44 +73,37 @@
   <div class="container">
     <!-- Form Section -->
     <div class="form-container">
-        <h1>Email Generator V1.0</h1>
-        <h8 style="display: block; text-align: center; opacity: 0.5; margin-top: -10px; margin-bottom: 10px; font-size: 14px;">
-          Script compiled by Surya Shrestha © 2024
-        </h8>
-        <form id="emailerForm">
-          <div class="form-group">
-            <label for="banner">Upload Header Banner (600px wide):</label>
-            <input type="file" id="bannerUpload" accept="image/*" required>
-          </div>
-      
-          <div class="form-group">
-            <label for="body">Body Text:</label>
-            <textarea id="body" placeholder="Enter email content here" required></textarea>
-          </div>
-      
-          <div class="form-group cta-group">
-            <label>
-              <input type="checkbox" id="ctaToggle">
-              Include CTA
-            </label>
-          </div>
-      
-          <div class="form-group">
-            <input type="text" id="ctaText" placeholder="Enter CTA text" disabled>
-            <input type="url" id="ctaLink" placeholder="Enter CTA link" disabled>
-          </div>
-      
-          <button type="button" onclick="generatePreview()">Generate Preview</button>
-        </form>
-      </div>
-      
-      
+      <h1>Email Generator</h1>
+      <form id="emailerForm">
+        <div class="form-group">
+          <label for="banner">Upload Header Banner (600px wide):</label>
+          <input type="file" id="bannerUpload" accept="image/*" required>
+        </div>
 
-    <!-- Preview Section -->
-    <div class="preview-container">
-      <h2>Email Preview</h2>
-      <div id="emailPreview"></div>
-      <button class="copy-btn" onclick="copyEmailContent()">Copy Email</button>
+        <div class="form-group">
+          <label for="body">Body Text:</label>
+          <textarea id="body" placeholder="Enter email content here" required></textarea>
+        </div>
+
+        <div class="form-group cta-group">
+          <label>
+            <input type="checkbox" id="ctaToggle">
+            Include CTA
+          </label>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="ctaText" placeholder="Enter CTA text" disabled>
+          <input type="url" id="ctaLink" placeholder="Enter CTA link" disabled>
+        </div>
+
+        <button type="button" onclick="generatePreview()">Generate Preview</button>
+      </form>
+    </div>
+
+    <!-- Footer Section (hidden in preview) -->
+    <div class="footer">
+      <p>Script compiled by Surya Shrestha &copy; 2024</p>
     </div>
   </div>
 
@@ -136,7 +112,6 @@
     const ctaText = document.getElementById("ctaText");
     const ctaLink = document.getElementById("ctaLink");
     const bannerUpload = document.getElementById("bannerUpload");
-    const emailPreview = document.getElementById("emailPreview");
     let bannerDataUrl = "";
 
     ctaToggle.addEventListener("change", () => {
@@ -176,11 +151,6 @@
             </td>
           </tr>
           <tr>
-            <td style="padding: 10px; font-size: 12px; color: #777; text-align: center;">
-              
-            </td>
-          </tr>
-          <tr>
             <td style="padding: 20px; font-size: 16px; line-height: 1.6;">
               ${body.replace(/\n/g, "<br>")}
             </td>
@@ -193,23 +163,44 @@
         </table>
       `;
 
-      emailPreview.innerHTML = emailHTML;
+      openPreviewPopup(emailHTML);
     }
 
-    function copyEmailContent() {
-      const range = document.createRange();
-      range.selectNode(emailPreview);
-      window.getSelection().removeAllRanges();
-      window.getSelection().addRange(range);
-
-      try {
-        const success = document.execCommand("copy");
-        alert(success ? "Email content copied! Paste it directly into Outlook." : "Copy failed. Please try again.");
-      } catch (err) {
-        alert("Unable to copy. Please try again.");
-      }
-
-      window.getSelection().removeAllRanges();
+    function openPreviewPopup(emailHTML) {
+      const popupWindow = window.open("", "_blank", "width=800,height=600");
+      popupWindow.document.write(`
+        <html>
+        <head>
+          <title>Email Preview</title>
+          <style>
+            body {
+              font-family: 'Avenir', Arial, Helvetica, sans-serif;
+              color: #333;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background-color: #f9f9f9;
+            }
+            .email-preview {
+              max-width: 600px;
+              background: #ffffff;
+              border-radius: 8px;
+              border: 1px solid #ddd;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+              padding: 20px;
+              text-align: center;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="email-preview">${emailHTML}</div>
+        </body>
+        </html>
+      `);
+      popupWindow.document.close();
     }
   </script>
 </body>
